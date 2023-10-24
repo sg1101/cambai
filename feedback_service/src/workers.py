@@ -20,17 +20,11 @@ tiger = TaskTiger(connection=redis_client, config={
 @tiger.task()
 def process_feedback_task(task_data):
     try:
-        # Set the task status to 'IN_PROGRESS' at the beginning
-        update_task_status(task_data['task_id'], TaskStatus.IN_PROGRESS)
-
         # Replace with your actual processing logic that takes 5-10 seconds
         processing_time: float = random.uniform(5, 10)
         time.sleep(processing_time)
 
-        # Update processing statistics in Redis based on actual processing results
-        # Example: Update sentiment distribution based on sentiment analysis
         sentiment = random.choice(sentiments)  # Replace with actual sentiment analysis
-
         total_tasks_processed = redis_client.get('total_tasks_processed')
         if total_tasks_processed is None:
             redis_client.set('average_processing_time', processing_time)
@@ -42,14 +36,10 @@ def process_feedback_task(task_data):
             redis_client.set('total_tasks_processed', total_tasks_processed)
             redis_client.set('average_processing_time', total_processing_time / total_tasks_processed)
 
-        # redis_client.incr(task_data['platform'].upper())
         redis_client.hincrby('platform_distribution', task_data['platform'].upper(), 1)
         redis_client.hincrby('sentiment_distribution', sentiment, 1)
-
-        # Example: Update topic distribution based on categorization logic
         topic = random.choice(topics)  # Replace with actual categorization logic
         redis_client.hincrby('topic_distribution', topic, 1)
-
         # Set the task status to 'COMPLETED' when processing is successful
         update_task_status(task_data['task_id'], TaskStatus.COMPLETED)
     except Exception as e:

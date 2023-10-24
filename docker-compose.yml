@@ -2,39 +2,46 @@ version: '3'
 services:
   fastapi:
     build:
-      context: ./feedback_service  # The path to your project directory containing the Dockerfile
+      context: ./feedback_service
     ports:
-      - "8000:8000"  # Map port 8000 in the container to port 8000 on the host
+      - "8000:8000"
     depends_on:
-      - redis  # Wait for the Redis service to be up and running
+      - redis
     environment:
-      - REDIS_HOST=redis  # Set the Redis host (use the service name defined below)
+      - REDIS_HOST=redis
     volumes:
       - ./feedback_service:/app
     command: ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
     networks:
       - my-network
-
   redis:
-    image: "redis:latest"  # Use the official Redis image
+    image: "redis:latest"
     ports:
       - "6379:6379"
     networks:
       - my-network
-
   tasktiger:
     build:
-      context: ./feedback_service  # The path to your project directory containing the Dockerfile
+      context: ./feedback_service
       dockerfile: Dockerfile
     depends_on:
-      - redis  # Wait for the Redis service to be up and
+      - redis
     environment:
-      REDIS_HOST: redis  # Set the Redis host (use the service name defined below)
+      REDIS_HOST: redis
     volumes:
       - ./feedback_service:/app
     command: ["bash", "run_worker.sh"]
     networks:
       - my-network
-
+  streamlit-dashboard:
+    build:
+      context: ./feedback_service
+    ports:
+      - "8501:8501"
+    depends_on:
+      - fastapi
+    command: ["streamlit", "run", "src/dashboard.py"]
+    networks:
+      - my-network
 networks:
   my-network:

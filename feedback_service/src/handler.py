@@ -1,21 +1,21 @@
 import json
 import uuid
-
 from fastapi import HTTPException
-
 from .models import FeedbackData, ProcessingStatistics
 from .config import redis_client
 from .workers import process_feedback_task
+from .utils import update_task_status
+from .constants import TaskStatus
+
 
 def create_task(task_data: FeedbackData):
     # Enqueue the task for processing
     task_data_dict = task_data.dict()
     # Generate a unique task ID
     task_data_dict['task_id'] = str(uuid.uuid4())
-    # task = tiger.delay(process_feedback_task, task_data_dict)
+    # Set the task status to 'IN_PROGRESS' at the beginning
+    update_task_status(task_data_dict['task_id'], TaskStatus.IN_PROGRESS)
     process_feedback_task.delay(task_data_dict)
-
-    # # Return a response with the task_id (optional)
     return {"task_id": task_data_dict['task_id']}
 
 
@@ -55,3 +55,7 @@ def get_processing_statistics():
         platform_distribution=platform_distribution
     )
     return statistics.dict()
+
+
+def cache_clear():
+    redis_client.flushall()
