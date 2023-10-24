@@ -11,20 +11,7 @@ services:
       - REDIS_HOST=redis  # Set the Redis host (use the service name defined below)
     volumes:
       - ./feedback_service:/app
-    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
-    networks:
-      - my-network
-
-  tasktiger-worker:
-    build:
-      context: ./feedback_service  # The path to your project directory containing the Dockerfile
-    depends_on:
-      - redis  # Wait for the Redis service to be up and
-    environment:
-      - REDIS_HOST=redis  # Set the Redis host (use the service name defined below)
-    volumes:
-      - ./feedback_service:/app
-    command: ["python", "app.py"]
+    command: ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
     networks:
       - my-network
 
@@ -32,6 +19,20 @@ services:
     image: "redis:latest"  # Use the official Redis image
     ports:
       - "6379:6379"
+    networks:
+      - my-network
+
+  tasktiger:
+    build:
+      context: ./feedback_service  # The path to your project directory containing the Dockerfile
+      dockerfile: Dockerfile
+    depends_on:
+      - redis  # Wait for the Redis service to be up and
+    environment:
+      REDIS_HOST: redis  # Set the Redis host (use the service name defined below)
+    volumes:
+      - ./feedback_service:/app
+    command: ["bash", "run_worker.sh"]
     networks:
       - my-network
 

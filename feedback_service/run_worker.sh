@@ -1,0 +1,1 @@
+PYTHONPATH=. tasktiger -h redis -p 6379
