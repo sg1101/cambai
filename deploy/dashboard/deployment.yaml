@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app: dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: dashboard
+  template:
+    metadata:
+      labels:
+        pod: dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: cambai-streamlit-dashboard
+          ports:
+            - containerPort: 8501

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi
+  labels:
+    app: fastapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: fastapi
+  template:
+    metadata:
+      labels:
+        pod: fastapi
+    spec:
+
+      containers:
+        - name: fastapi
+          image: cambai-fastapi
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: REDIS_HOST
+              value: redis-service

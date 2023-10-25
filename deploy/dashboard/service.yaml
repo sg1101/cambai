@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dashboard-service
+spec:
+  selector:
+    pod: dashboard
+  ports:
+  - protocol: TCP
+    port: 8501
+    targetPort: 8501
+  type: NodePort

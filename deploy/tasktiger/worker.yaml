@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasktiger-worker
+  labels:
+    deployment: tasktiger-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: tasktiger-worker
+  template:
+    metadata:
+      labels:
+        pod: tasktiger-worker
+    spec:
+      containers:
+        - name: tasktiger-worker
+          image: cambai-tasktiger
+          env:
+            - name: REDIS_HOST
+              value: redis-service
